@@ -13,20 +13,20 @@ return {
         config = function()
             require("mason-lspconfig").setup({
                 ensure_installed = {
-                    "pyright",                    -- LSP cho Python
-                    "lua_ls",                     -- Lua
-                    "ts_ls",                      -- TypeScript/JavaScript
-                    "html",                       -- HTML
-                    "cssls",                      -- CSS
-                    "groovyls",                   -- Groovy
-                    "jdtls",                      -- LSP cho Java
-                    "kotlin_language_server",      
+                    "pyright",  -- LSP cho Python
+                    "lua_ls",   -- Lua
+                    "ts_ls",    -- TypeScript/JavaScript
+                    "html",     -- HTML
+                    "cssls",    -- CSS
+                    "groovyls", -- Groovy
+                    "jdtls",    -- LSP cho Java
+                    "kotlin_language_server",
                 },
                 automatic_installation = true, -- Tự động cài đặt khi khởi động
             })
         end,
     },
-      -- Mason DAP (for debug adapters)
+    -- Mason DAP (for debug adapters)
     {
         "jay-babu/mason-nvim-dap.nvim",
         dependencies = {
@@ -53,9 +53,9 @@ return {
         "hrsh7th/cmp-nvim-lsp", -- Gợi ý từ LSP
     },
     {
-        "L3MON4D3/LuaSnip", -- Snippet engine
+        "L3MON4D3/LuaSnip",                 -- Snippet engine
         dependencies = {
-            "saadparwaiz1/cmp_luasnip", -- Tích hợp LuaSnip với nvim-cmp
+            "saadparwaiz1/cmp_luasnip",     -- Tích hợp LuaSnip với nvim-cmp
             "rafamadriz/friendly-snippets", -- Thư viện snippet
         },
     },
@@ -63,9 +63,9 @@ return {
         "hrsh7th/nvim-cmp", -- Plugin chính cho code completion
         dependencies = {
             "hrsh7th/cmp-nvim-lsp",
-            "jmbuhr/otter.nvim", -- Tích hợp otter.nvim cho .md/.qmd
+            "jmbuhr/otter.nvim",  -- Tích hợp otter.nvim cho .md/.qmd
             "hrsh7th/cmp-buffer", -- Thêm lại để hỗ trợ nguồn buffer
-            "hrsh7th/cmp-path", -- Thêm lại để hỗ trợ nguồn path
+            "hrsh7th/cmp-path",   -- Thêm lại để hỗ trợ nguồn path
         },
         config = function()
             local cmp = require("cmp")
@@ -84,8 +84,8 @@ return {
                 mapping = cmp.mapping.preset.insert({
                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                    ["<C-Space>"] = cmp.mapping.complete(), -- Mở menu gợi ý
-                    ["<C-e>"] = cmp.mapping.abort(), -- Đóng menu gợi ý
+                    ["<C-Space>"] = cmp.mapping.complete(),            -- Mở menu gợi ý
+                    ["<C-e>"] = cmp.mapping.abort(),                   -- Đóng menu gợi ý
                     ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Chấp nhận gợi ý
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
@@ -114,11 +114,11 @@ return {
                 }),
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" }, -- Gợi ý từ LSP
-                    { name = "luasnip" }, -- Gợi ý từ snippet
-                    { name = "otter" }, -- Gợi ý từ otter.nvim cho .md/.qmd
-                    { name = "path" }, -- Gợi ý đường dẫn
+                    { name = "luasnip" },  -- Gợi ý từ snippet
+                    { name = "otter" },    -- Gợi ý từ otter.nvim cho .md/.qmd
+                    { name = "path" },     -- Gợi ý đường dẫn
                 }, {
-                    { name = "buffer" }, -- Gợi ý từ buffer
+                    { name = "buffer" },   -- Gợi ý từ buffer
                 }),
             })
         end,
@@ -173,8 +173,10 @@ return {
             vim.keymap.set("n", "<leader>ch", vim.lsp.buf.hover, { desc = "Tài liệu khi di chuột qua mã" })
             vim.keymap.set("n", "<leader>cd", vim.lsp.buf.definition, { desc = "Đi đến định nghĩa mã" })
             vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Hành động mã" })
-            vim.keymap.set("n", "<leader>cr", require("telescope.builtin").lsp_references, { desc = "Đi đến tham chiếu mã" })
-            vim.keymap.set("n", "<leader>ci", require("telescope.builtin").lsp_implementations, { desc = "Đi đến triển khai mã" })
+            vim.keymap.set("n", "<leader>cr", require("telescope.builtin").lsp_references,
+                { desc = "Đi đến tham chiếu mã" })
+            vim.keymap.set("n", "<leader>ci", require("telescope.builtin").lsp_implementations,
+                { desc = "Đi đến triển khai mã" })
             vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { desc = "Đổi tên mã" })
             vim.keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, { desc = "Đi đến khai báo mã" })
 

@@ -33,26 +33,43 @@ local function get_workspace()
 end
 
 local function organize_and_format()
-    require('jdtls').organize_imports() -- Sắp xếp imports
+    require('jdtls').organize_imports()   -- Sắp xếp imports
     vim.lsp.buf.format({ async = false }) -- Định dạng mã
 end
 
 local function java_keymaps(bufnr)
-    local opts = { buffer = bufnr }
-    vim.cmd("command! -buffer -nargs=? -complete=custom,v:lua.require'jdtls'._complete_compile JdtCompile lua require('jdtls').compile(<f-args>)")
-    vim.cmd("command! -buffer JdtUpdateConfig lua require('jdtls').update_project_config()")
-    vim.cmd("command! -buffer JdtBytecode lua require('jdtls').javap()")
-    vim.cmd("command! -buffer JdtJshell lua require('jdtls').jshell()")
+    local opts = { buffer = bufnr, noremap = true, silent = true }
 
-    vim.keymap.set('n', '<leader>Jv', "<Cmd>lua require('jdtls').extract_variable()<CR>", vim.tbl_extend("force", opts, { desc = "Trích xuất Biến trong Java" }))
-    vim.keymap.set('v', '<leader>Jv', "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>", vim.tbl_extend("force", opts, { desc = "Trích xuất Biến trong Java" }))
-    vim.keymap.set('n', '<leader>JC', "<Cmd>lua require('jdtls').extract_constant()<CR>", vim.tbl_extend("force", opts, { desc = "Trích xuất Hằng số trong Java" }))
-    vim.keymap.set('v', '<leader>JC', "<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>", vim.tbl_extend("force", opts, { desc = "Trích xuất Hằng số trong Java" }))
-    vim.keymap.set('n', '<leader>Jt', "<Cmd>lua require('jdtls').test_nearest_method()<CR>", vim.tbl_extend("force", opts, { desc = "Kiểm tra Phương thức Gần nhất trong Java" }))
-    vim.keymap.set('v', '<leader>Jt', "<Esc><Cmd>lua require('jdtls').test_nearest_method(true)<CR>", vim.tbl_extend("force", opts, { desc = "Kiểm tra Phương thức Gần nhất trong Java" }))
-    vim.keymap.set('n', '<leader>JT', "<Cmd>lua require('jdtls').test_class()<CR>", vim.tbl_extend("force", opts, { desc = "Kiểm tra Lớp trong Java" }))
-    vim.keymap.set('n', '<leader>Ju', "<Cmd>JdtUpdateConfig<CR>", vim.tbl_extend("force", opts, { desc = "Cập nhật Cấu hình trong Java" }))
-    vim.keymap.set('n', '<C-s>', organize_and_format, vim.tbl_extend("force", opts, { desc = "Lưu và định dạng mã Java" }))
+    -- Định nghĩa các command
+    vim.api.nvim_buf_create_user_command(bufnr, "JdtCompile",
+        function(args) require('jdtls').compile(args.args) end,
+        { nargs = "?", complete = "custom,v:lua.require'jdtls'._complete_compile" })
+    vim.api.nvim_buf_create_user_command(bufnr, "JdtUpdateConfig",
+        function() require('jdtls').update_project_config() end, {})
+    vim.api.nvim_buf_create_user_command(bufnr, "JdtBytecode",
+        function() require('jdtls').javap() end, {})
+    vim.api.nvim_buf_create_user_command(bufnr, "JdtJshell",
+        function() require('jdtls').jshell() end, {})
+
+    -- Thiết lập keymap
+    vim.keymap.set('n', '<leader>jv', "<Cmd>lua require('jdtls').extract_variable()<CR>",
+        vim.tbl_extend("force", opts, { desc = "Trích xuất Biến trong Java" }))
+    vim.keymap.set('v', '<leader>jv', "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>",
+        vim.tbl_extend("force", opts, { desc = "Trích xuất Biến trong Java" }))
+    vim.keymap.set('n', '<leader>jC', "<Cmd>lua require('jdtls').extract_constant()<CR>",
+        vim.tbl_extend("force", opts, { desc = "Trích xuất Hằng số trong Java" }))
+    vim.keymap.set('v', '<leader>jC', "<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>",
+        vim.tbl_extend("force", opts, { desc = "Trích xuất Hằng số trong Java" }))
+    vim.keymap.set('n', '<leader>jt', "<Cmd>lua require('jdtls').test_nearest_method()<CR>",
+        vim.tbl_extend("force", opts, { desc = "Kiểm tra Phương thức Gần nhất trong Java" }))
+    vim.keymap.set('v', '<leader>jt', "<Esc><Cmd>lua require('jdtls').test_nearest_method(true)<CR>",
+        vim.tbl_extend("force", opts, { desc = "Kiểm tra Phương thức Gần nhất trong Java" }))
+    vim.keymap.set('n', '<leader>jT', "<Cmd>lua require('jdtls').test_class()<CR>",
+        vim.tbl_extend("force", opts, { desc = "Kiểm tra Lớp trong Java" }))
+    vim.keymap.set('n', '<leader>ju', "<Cmd>JdtUpdateConfig<CR>",
+        vim.tbl_extend("force", opts, { desc = "Cập nhật Cấu hình trong Java" }))
+    vim.keymap.set('n', '<C-s>', organize_and_format,
+        vim.tbl_extend("force", opts, { desc = "Lưu và định dạng mã Java" }))
 end
 
 local function setup_jdtls()
@@ -182,8 +199,10 @@ local function setup_jdtls()
         on_attach = on_attach,
     }
 
+    -- Khởi động JDTLS
     require('jdtls').start_or_attach(config)
 
+    -- Autocommand để cấu hình DAP khi LSP gắn vào file Java
     vim.api.nvim_create_autocmd("LspAttach", {
         pattern = "*.java",
         callback = function(args)
