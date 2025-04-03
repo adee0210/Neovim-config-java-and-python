@@ -9,7 +9,7 @@ return {
       auto_reload_on_write = true,
       view = {
         side = "right",
-        width = 50,
+        width = 55,
         preserve_window_proportions = false,
         float = { enable = false },
       },
