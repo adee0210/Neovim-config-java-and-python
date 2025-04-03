@@ -6,7 +6,7 @@ return {
     config = function()
         require("quarto").setup({
             lspFeatures = {
-                languages = { "python" },  -- Xóa "r"
+                languages = { "python" }, -- Xóa "r"
                 chunks = "all",
                 diagnostics = {
                     enabled = true,
@@ -33,7 +33,7 @@ return {
             pattern = { "markdown", "quarto" },
             callback = function()
                 if pcall(require, "nvim-treesitter.parsers") then
-                    require("otter").activate({ "python" })  -- Xóa "r"
+                    require("otter").activate({ "python" }) -- Xóa "r"
                 else
                     print("Treesitter not available, otter activation skipped")
                 end

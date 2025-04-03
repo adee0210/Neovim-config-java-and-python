@@ -36,7 +36,7 @@ return {
             desc = " Java",
         },
         {
-            "<leader>C",
+            "<leader>a",
             function()
                 require("which-key").show({ global = false })
             end,

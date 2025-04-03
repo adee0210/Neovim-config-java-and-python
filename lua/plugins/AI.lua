@@ -1,52 +1,44 @@
 return {
-    "olimorris/codecompanion.nvim",
-    config = function()
-        require("codecompanion").setup({
-            adapters = {
-                openrouter = function()
-                    return require("codecompanion.adapters").extend("openai_compatible", {
-                        env = {
-                            api_key = "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",
-                            url = "https://openrouter.ai/api",
-                            chat_url = "/v1/chat/completions",
-                        },
-                        schema = {
-                            model = {
-                                default = "deepseek/deepseek-chat-v3-0324:free",
-                                required = true
-                            },
-                            temperature = {
-                                default = 0.3,
-                                validate = function(v) return v >= 0 and v <= 1 end
-                            },
-                            max_tokens = {
-                                default = 8192,
-                                validate = function(v) return type(v) == "number" and v >= 1 end
-                            }
-                        },
-                        handle_rate_limit = function()
-                            vim.notify("Đạt giới hạn 10 requests/10s. Chờ 10 giây...", vim.log.levels.WARN)
-                            vim.wait(10000)
-                            return true
-                        end
-                    })
-                end
-            },
-            display = {
-                chat = {
-                    intro_message = "Welcome to DeepSeek V3!",
-                    window = {
-                        width = 75,
-                    }
-                }
-            }
-        })
-
-        -- Gán phím tắt với tiền tố <leader>c
-        vim.keymap.set("n", "<leader>Ca", ":CodeCompanionActions<CR>", { noremap = true, silent = true })
-        vim.keymap.set("n", "<leader>Cc", ":CodeCompanionChat Toggle<CR>", { noremap = true, silent = true })
-        vim.keymap.set("n", "<leader>Cd", function() require("codecompanion").prompt("docs") end, { noremap = true, silent = true })
-        vim.keymap.set("i", "<leader>Cs", "<C-s>", { noremap = true, silent = true, buffer = true })
-        vim.keymap.set("v", "<leader>Cv", ":CodeCompanionChat Add<CR>", { noremap = true, silent = true })
-    end
+  "yetone/avante.nvim",
+  event = "VeryLazy",
+  lazy = false,
+  version = false,
+  opts = {
+    hints = { enabled = false },
+    file_selector = {
+      provider = "snacks",
+      provider_opts = {},
+    },
+    provider = "groq", -- Chỉ sử dụng Groq làm nhà cung cấp mặc định
+    vendors = {
+      groq = {
+        __inherited_from = "openai",
+        api_key_name = "GROQ_API_KEY",
+        endpoint = "https://api.groq.com/openai/v1/",
+        model = "llama-3.3-70b-versatile",
+        max_completion_tokens = 32768,
+      },
+    },
+  },
+  build = "make",
+  dependencies = {
+    "stevearc/dressing.nvim",
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    "echasnovski/mini.icons",
+    "zbirenbaum/copilot.lua",
+    {
+      "HakonHarnes/img-clip.nvim",
+      event = "VeryLazy",
+      opts = {
+        default = {
+          embed_image_as_base64 = false,
+          prompt_for_file_name = false,
+          drag_and_drop = {
+            insert_mode = true,
+          },
+        },
+      },
+    },
+  },
 }

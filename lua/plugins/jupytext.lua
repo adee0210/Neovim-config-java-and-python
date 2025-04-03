@@ -8,7 +8,7 @@ return {
             output_extension = "md",
             force_ft = "markdown",
         })
-        
+
         -- Kiểm tra và xác nhận đường dẫn
         local function get_valid_path(path)
             if vim.fn.executable(path) == 1 then
@@ -51,11 +51,11 @@ return {
 
             -- Tạo tên file đầu ra
             local ipynb_file = current_file:gsub("%.md$", ".ipynb")
-            
+
             -- Xây dựng lệnh
-            local cmd = string.format("%s --from md --to ipynb '%s' -o '%s' --set-kernel global_env_python", 
-                                     jupytext_path, current_file, ipynb_file)
-            
+            local cmd = string.format("%s --from md --to ipynb '%s' -o '%s' --set-kernel global_env_python",
+                jupytext_path, current_file, ipynb_file)
+
             -- Thực thi với xử lý lỗi
             local handle = io.popen(cmd .. " 2>&1")
             local output = handle:read("*a")
@@ -69,7 +69,7 @@ return {
         end
 
         -- Gán keybinding
-        vim.keymap.set("n", "<leader>mip", convert_to_ipynb, {
+        vim.keymap.set("n", "<leader>mI", convert_to_ipynb, {
             noremap = true,
             silent = false,
             desc = "Chuyển đổi Markdown sang IPython Notebook"
