@@ -20,14 +20,30 @@ return {
                     "cssls",                      -- CSS
                     "groovyls",                   -- Groovy
                     "jdtls",                      -- LSP cho Java
-                    "kotlin_language_server",      -- LSP cho Kotlin (đã sửa)
-                    "java-debug-adapter", -- Thêm vào đây để tự động tải
-                "java-test",         -- Nếu bạn cũng muốn java-test
+                    "kotlin_language_server",      
                 },
                 automatic_installation = true, -- Tự động cài đặt khi khởi động
             })
         end,
     },
+      -- Mason DAP (for debug adapters)
+    {
+        "jay-babu/mason-nvim-dap.nvim",
+        dependencies = {
+            "williamboman/mason.nvim",
+            "mfussenegger/nvim-dap",
+        },
+        config = function()
+            require("mason-nvim-dap").setup({
+                ensure_installed = {
+                    "java-debug-adapter",
+                    "java-test"
+                },
+                automatic_installation = true,
+            })
+        end,
+    },
+
 
     -- Thêm các plugin cho nvim-cmp
     {

@@ -41,5 +41,12 @@ return {
                 }
             }
         })
+
+        -- Gán phím tắt với tiền tố <leader>c
+        vim.keymap.set("n", "<leader>Ca", ":CodeCompanionActions<CR>", { noremap = true, silent = true })
+        vim.keymap.set("n", "<leader>Cc", ":CodeCompanionChat Toggle<CR>", { noremap = true, silent = true })
+        vim.keymap.set("n", "<leader>Cd", function() require("codecompanion").prompt("docs") end, { noremap = true, silent = true })
+        vim.keymap.set("i", "<leader>Cs", "<C-s>", { noremap = true, silent = true, buffer = true })
+        vim.keymap.set("v", "<leader>Cv", ":CodeCompanionChat Add<CR>", { noremap = true, silent = true })
     end
 }

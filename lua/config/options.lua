@@ -1,7 +1,7 @@
 -- Cột bên trái và các thiết lập tương tự
 vim.opt.number = true -- hiển thị số dòng
 vim.opt.relativenumber = false -- không hiển thị số dòng tương đối
-vim.opt.numberwidth = 2 -- thiết lập chiều rộng của cột số dòng
+vim.opt.numberwidth = 4 -- thiết lập chiều rộng của cột số dòng
 vim.opt.signcolumn = "yes" -- luôn hiển thị cột dấu (sign column)
 vim.opt.wrap = false -- hiển thị dòng văn bản như một dòng duy nhất
 vim.opt.scrolloff = 10 -- số dòng giữ ở trên/dưới con trỏ
