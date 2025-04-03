@@ -31,53 +31,8 @@ return {
         print("Molten đã khởi tạo với global_env_python")
       end
 
-      -- Hàm khởi tạo kernel R
-      local function init_molten_r()
-        vim.fn.jobstart("Rscript -e 'library(IRkernel)'", {
-          on_exit = function(_, code)
-            if code == 0 then
-              vim.fn.jobstart("Rscript -e 'IRkernel::installspec()'", {
-                on_exit = function(_, spec_code)
-                  if spec_code == 0 then
-                    vim.schedule(function()
-                      vim.cmd("MoltenInit ir")
-                      print("Molten đã khởi tạo với kernel R")
-                    end)
-                  else
-                    vim.notify("Lỗi khi đăng ký kernel R. Chạy 'Rscript -e \"IRkernel::installspec()\"' trong terminal.", vim.log.levels.ERROR)
-                  end
-                end,
-              })
-            else
-              vim.notify("IRkernel chưa cài đặt, đang cài...", vim.log.levels.INFO)
-              vim.fn.jobstart("Rscript -e 'install.packages(\"IRkernel\", repos=\"https://cloud.r-project.org\")'", {
-                on_exit = function(_, install_code)
-                  if install_code == 0 then
-                    vim.fn.jobstart("Rscript -e 'IRkernel::installspec()'", {
-                      on_exit = function(_, spec_code)
-                        if spec_code == 0 then
-                          vim.schedule(function()
-                            vim.cmd("MoltenInit ir")
-                            print("Molten đã khởi tạo với kernel R")
-                          end)
-                        else
-                          vim.notify("Lỗi khi đăng ký kernel R sau cài đặt.", vim.log.levels.ERROR)
-                        end
-                      end,
-                    })
-                  else
-                    vim.notify("Lỗi khi cài đặt IRkernel. Chạy 'Rscript -e \"install.packages(\\\"IRkernel\\\", repos=\\\"https://cloud.r-project.org\\\")\"' trong terminal.", vim.log.levels.ERROR)
-                  end
-                end,
-              })
-            end
-          end,
-        })
-      end
-
       -- Phím tắt với mô tả tiếng Việt
       vim.keymap.set("n", "<leader>mp", init_molten_python, { desc = "Khởi tạo Molten với Python" })
-      vim.keymap.set("n", "<leader>mR", init_molten_r, { desc = "Khởi tạo Molten với R" })
       vim.keymap.set("n", "<leader>me", ":MoltenEvaluateOperator<CR>", { desc = "Chạy đoạn mã được chọn" })
       vim.keymap.set("v", "<leader>me", ":<C-u>MoltenEvaluateVisual<CR>", { desc = "Chạy vùng mã được bôi đen" })
       vim.keymap.set("n", "<leader>md", ":MoltenDeinit<CR>", { desc = "Tắt Molten" })
