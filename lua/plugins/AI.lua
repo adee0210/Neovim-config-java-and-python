@@ -5,18 +5,14 @@ return {
   version = false,
   opts = {
     hints = { enabled = false },
-    file_selector = {
-      provider = "snacks",
-      provider_opts = {},
-    },
-    provider = "groq", -- Chỉ sử dụng Groq làm nhà cung cấp mặc định
+    provider = "mistral",
     vendors = {
-      groq = {
+      mistral = {
         __inherited_from = "openai",
-        api_key_name = "GROQ_API_KEY",
-        endpoint = "https://api.groq.com/openai/v1/",
-        model = "llama-3.3-70b-versatile",
-        max_completion_tokens = 32768,
+        api_key_name = "MISTRAL_API_KEY",
+        endpoint = "https://api.mistral.ai/v1/",
+        model = "mistral-large-latest",
+      max_tokens = 32768,
       },
     },
   },
