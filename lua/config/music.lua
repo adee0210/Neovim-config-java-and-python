@@ -79,7 +79,8 @@ local function start_pomodoro()
         else
             local minutes = math.floor(remaining / 60)
             local seconds = remaining % 60
-            vim.notify(string.format("Pomodoro còn lại: %02d:%02d", minutes, seconds), vim.log.levels.INFO, { replace = true })
+            vim.notify(string.format("Pomodoro còn lại: %02d:%02d", minutes, seconds), vim.log.levels.INFO,
+                { replace = true })
         end
     end))
 end
@@ -111,7 +112,7 @@ function M.setup()
         silent = false,
         desc = "Tắt hoàn toàn nhạc (kill mpv)"
     })
-    vim.api.nvim_set_keymap("n", "<leader>pomo50", "", {
+    vim.api.nvim_set_keymap("n", "<leader>P", "", {
         callback = start_pomodoro,
         noremap = true,
         silent = false,
