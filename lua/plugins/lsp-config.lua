@@ -63,7 +63,6 @@ return {
         "hrsh7th/nvim-cmp", -- Plugin chính cho code completion
         dependencies = {
             "hrsh7th/cmp-nvim-lsp",
-            "jmbuhr/otter.nvim",  -- Tích hợp otter.nvim cho .md/.qmd
             "hrsh7th/cmp-buffer", -- Thêm lại để hỗ trợ nguồn buffer
             "hrsh7th/cmp-path",   -- Thêm lại để hỗ trợ nguồn path
         },
@@ -115,7 +114,6 @@ return {
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" }, -- Gợi ý từ LSP
                     { name = "luasnip" },  -- Gợi ý từ snippet
-                    { name = "otter" },    -- Gợi ý từ otter.nvim cho .md/.qmd
                     { name = "path" },     -- Gợi ý đường dẫn
                 }, {
                     { name = "buffer" },   -- Gợi ý từ buffer
@@ -133,8 +131,6 @@ return {
             "mfussenegger/nvim-jdtls",
             "stevearc/conform.nvim",
             "akinsho/toggleterm.nvim",
-            "quarto-dev/quarto-nvim",
-            "jmbuhr/otter.nvim",
             "hrsh7th/cmp-nvim-lsp", -- Đảm bảo tích hợp với nvim-cmp
         },
         config = function()
