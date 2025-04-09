@@ -7,7 +7,6 @@ return {
     config = function()
         local ts_config = require("nvim-treesitter.configs")
         ts_config.setup({
-            -- Thêm "r" vào danh sách
             ensure_installed = {
                 "vim",
                 "vimdoc",
@@ -30,7 +29,7 @@ return {
                 additional_vim_regex_highlighting = false,
             },
             autotag = {
-                enable = true,
+                enable = false, -- Vô hiệu hóa nvim-ts-autotag
             },
         })
     end,
