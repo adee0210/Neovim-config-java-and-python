@@ -15,7 +15,7 @@ return {
                 },
                 hlgroups = {
                     "#FF6B6B", -- Đỏ tươi (Red)
-                    "#4ECDC4", -- Cyan ngọc (Turquoise)
+                    "#4ECDC4", -- Cyan ngọc (Turquoise) 
                     "#FFD700", -- Vàng ánh kim (Gold)
                     "#FF69B4", -- Hồng phấn (Hot Pink)
                     "#7FFF00", -- Xanh chartreuse (Chartreuse)

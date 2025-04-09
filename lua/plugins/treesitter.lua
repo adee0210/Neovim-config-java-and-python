@@ -29,7 +29,7 @@ return {
                 additional_vim_regex_highlighting = false,
             },
             autotag = {
-                enable = false, -- Vô hiệu hóa nvim-ts-autotag
+                enable = true, -- Vô hiệu hóa nvim-ts-autotag
             },
         })
     end,
