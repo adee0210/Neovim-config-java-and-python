@@ -31,6 +31,7 @@ local opts = {
 }
 -- Thiết lập Python cho Neovim
 vim.g.python3_host_prog = vim.fn.expand("~/.python_envs/global_env/bin/python")
+require('utils.env')
 
 -- Thêm Node.js và Python vào PATH
 vim.env.PATH = table.concat({
