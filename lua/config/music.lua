@@ -112,7 +112,7 @@ function M.setup()
         silent = false,
         desc = "Tắt hoàn toàn nhạc (kill mpv)"
     })
-    vim.api.nvim_set_keymap("n", "<leader>P", "", {
+    vim.api.nvim_set_keymap("n", "<leader>p", "", {
         callback = start_pomodoro,
         noremap = true,
         silent = false,
