@@ -89,7 +89,21 @@ local function search_song()
         return
     end
 
-    vim.ui.input({ prompt = "Nhập tên bài: " }, function(input)
+    -- Hiển thị danh sách tất cả bài hát trong playlist
+    local items = {}
+    for _, file in ipairs(playlist.files) do
+        table.insert(items, vim.fn.fnamemodify(file, ":t"))
+    end
+
+    vim.ui.select(items, { prompt = "Chọn bài muốn phát:" }, function(choice, idx)
+        if choice and idx then
+            playlist.index = idx
+            play_current_song(M.active_playlist, playlist.files[idx])
+        end
+    end)
+
+    -- Tìm kiếm theo từ khóa
+    vim.ui.input({ prompt = "Nhập từ khóa tìm bài (.mp3): " }, function(input)
         if not input or input == "" then return end
 
         local results = {}
@@ -184,12 +198,8 @@ function M.setup()
         silent = true,
         desc = "Bật/Tắt lặp bài"
     })
-    vim.api.nvim_set_keymap("n", "<leader>Mf", "", {
-        callback = search_song,
-        noremap = true,
-        silent = true,
-        desc = "Tìm bài"
-    })
+    vim.keymap.set("n", "<leader>Mf", search_song, { noremap = true, silent = true, desc = "Tìm bài" })
+
     vim.api.nvim_set_keymap("n", "<leader>Mc", "", {
         callback = play_file_by_path,
         noremap = true,
@@ -212,3 +222,4 @@ end
 
 M.setup()
 return M
+
