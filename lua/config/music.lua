@@ -5,7 +5,8 @@ M.playlists = {
     coloi = nil,
     khongloi = nil,
 }
-M.active_playlist = nil -- Lưu loại playlist đang phát ("coloi" hoặc "khongloi")
+M.active_playlist = nil
+M.repeat_current = false
 
 -- Hàm xáo trộn (Fisher-Yates)
 local function shuffle(tbl)
@@ -15,28 +16,18 @@ local function shuffle(tbl)
     end
 end
 
--- Hàm chơi bài hiện tại trong playlist của một loại
-local function play_current_song(playlist_type)
-    local playlist = M.playlists[playlist_type]
-    if not playlist or not playlist.files then
-        vim.notify("Playlist không tồn tại", vim.log.levels.ERROR)
-        return
-    end
-
-    local file = playlist.files[playlist.index]
-    if not file then
-        vim.notify("Không còn bài nào trong danh sách", vim.log.levels.INFO)
-        return
-    end
-
-    -- Kill mpv hiện tại (nếu có) rồi phát file mới
+-- Hàm chạy mpv với file được chọn
+local function play_current_song(playlist_type, file)
     vim.fn.system("pkill -9 mpv")
-    local cmd = { "mpv", "--no-video", file }
+    local cmd = { "mpv", "--no-video" }
+    if M.repeat_current then
+        table.insert(cmd, "--loop-file=inf")
+    end
+    table.insert(cmd, file)
     vim.fn.jobstart(cmd, { detach = true })
-    vim.notify("Đang phát: " .. file, vim.log.levels.INFO)
+    vim.notify("Đang phát: " .. vim.fn.fnamemodify(file, ":t"), vim.log.levels.INFO)
 end
 
--- Hàm khởi chạy playlist mới cho thư mục chỉ định
 local function start_playlist(playlist_type)
     local path = nil
     if playlist_type == "coloi" then
@@ -60,14 +51,11 @@ local function start_playlist(playlist_type)
     end
 
     shuffle(files)
-    -- Lưu trạng thái playlist: danh sách file, index bắt đầu từ 1 và đường dẫn
     M.playlists[playlist_type] = { files = files, index = 1, dir = path }
     M.active_playlist = playlist_type
-
-    play_current_song(playlist_type)
+    play_current_song(playlist_type, files[1])
 end
 
--- Hàm chuyển sang bài tiếp theo trong playlist đang hoạt động
 local function play_next_song()
     if not M.active_playlist then
         vim.notify("Không có playlist nào đang hoạt động", vim.log.levels.ERROR)
@@ -85,10 +73,63 @@ local function play_next_song()
         vim.notify("Đã hết danh sách phát", vim.log.levels.INFO)
         return
     end
-    play_current_song(M.active_playlist)
+    play_current_song(M.active_playlist, playlist.files[playlist.index])
 end
 
--- Hàm tạm dừng / tiếp tục phát nhạc
+-- ✅ Đã sửa để luôn hiện danh sách chọn, tên bài ngắn gọn
+local function search_song()
+    if not M.active_playlist then
+        vim.notify("Không có playlist nào đang hoạt động để tìm kiếm", vim.log.levels.ERROR)
+        return
+    end
+
+    local playlist = M.playlists[M.active_playlist]
+    if not playlist or not playlist.files then
+        vim.notify("Playlist chưa được khởi tạo", vim.log.levels.ERROR)
+        return
+    end
+
+    vim.ui.input({ prompt = "Nhập tên bài: " }, function(input)
+        if not input or input == "" then return end
+
+        local results = {}
+        for i, file in ipairs(playlist.files) do
+            if file:lower():find("%.mp3") and file:lower():find(input:lower()) then
+                table.insert(results, { index = i, file = file })
+            end
+        end
+
+        if #results == 0 then
+            vim.notify("Không tìm thấy bài nào phù hợp từ khóa: " .. input, vim.log.levels.INFO)
+            return
+        end
+
+        local items = {}
+        for _, r in ipairs(results) do
+            table.insert(items, vim.fn.fnamemodify(r.file, ":t"))
+        end
+
+        vim.ui.select(items, { prompt = "Chọn bài muốn phát:" }, function(choice, idx)
+            if choice and idx and results[idx] then
+                playlist.index = results[idx].index
+                play_current_song(M.active_playlist, results[idx].file)
+            end
+        end)
+    end)
+end
+
+local function play_file_by_path()
+    vim.ui.input({ prompt = "Nhập đường dẫn file nhạc: " }, function(input)
+        if not input or input == "" then return end
+        if vim.fn.filereadable(input) == 0 then
+            vim.notify("Không tìm thấy file: " .. input, vim.log.levels.ERROR)
+            return
+        end
+        play_current_song("manual", input)
+        M.active_playlist = nil
+    end)
+end
+
 local function toggle_music()
     local check_running = vim.fn.system("pgrep mpv")
     if vim.v.shell_error ~= 0 then
@@ -106,44 +147,66 @@ local function toggle_music()
     end
 end
 
--- Hàm tắt nhạc hoàn toàn (kill mpv)
 local function kill_music()
     vim.fn.system("pkill -9 mpv")
     vim.notify("Đã tắt hoàn toàn nhạc", vim.log.levels.INFO)
     M.active_playlist = nil
 end
 
--- Gán phím với mô tả
+-- ✅ Không khởi động lại bài khi bật/tắt lặp lại
+local function toggle_repeat()
+    M.repeat_current = not M.repeat_current
+    vim.notify("Chế độ lặp lại: " .. (M.repeat_current and "BẬT" or "TẮT"), vim.log.levels.INFO)
+end
+
 function M.setup()
     vim.api.nvim_set_keymap("n", "<leader>Mp", "", {
         callback = function() start_playlist("coloi") end,
         noremap = true,
-        silent = false,
-        desc = "Phát playlist Coloi (shuffle, không lặp lại)"
+        silent = true,
+        desc = "Phát playlist Coloi"
     })
     vim.api.nvim_set_keymap("n", "<leader>Mk", "", {
         callback = function() start_playlist("khongloi") end,
         noremap = true,
-        silent = false,
-        desc = "Phát playlist Khongloi (shuffle, không lặp lại)"
+        silent = true,
+        desc = "Phát playlist Khongloi"
     })
     vim.api.nvim_set_keymap("n", "<leader>Mn", "", {
         callback = play_next_song,
         noremap = true,
-        silent = false,
-        desc = "Chuyển sang bài tiếp theo trong playlist"
+        silent = true,
+        desc = "Bài tiếp theo"
+    })
+    vim.api.nvim_set_keymap("n", "<leader>Mr", "", {
+        callback = toggle_repeat,
+        noremap = true,
+        silent = true,
+        desc = "Bật/Tắt lặp bài"
+    })
+    vim.api.nvim_set_keymap("n", "<leader>Mf", "", {
+        callback = search_song,
+        noremap = true,
+        silent = true,
+        desc = "Tìm bài"
+    })
+    vim.api.nvim_set_keymap("n", "<leader>Mc", "", {
+        callback = play_file_by_path,
+        noremap = true,
+        silent = true,
+        desc = "Phát theo đường dẫn"
     })
     vim.api.nvim_set_keymap("n", "<leader>Mt", "", {
         callback = toggle_music,
         noremap = true,
-        silent = false,
-        desc = "Tạm dừng / tiếp tục phát nhạc"
+        silent = true,
+        desc = "Tạm dừng / tiếp tục"
     })
     vim.api.nvim_set_keymap("n", "<leader>Ms", "", {
         callback = kill_music,
         noremap = true,
-        silent = false,
-        desc = "Tắt hoàn toàn nhạc (kill mpv)"
+        silent = true,
+        desc = "Tắt nhạc"
     })
 end
 
