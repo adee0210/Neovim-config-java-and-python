@@ -21,9 +21,6 @@ return {
                     "groovyls", -- Groovy
                     "jdtls",    -- LSP cho Java
                     "kotlin_language_server",
-                    "csharp-language-server",
-                    "omnisharp",
-                    "csharpier",
                 },
                 automatic_installation = true, -- Tự động cài đặt khi khởi động
             })
