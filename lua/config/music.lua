@@ -16,18 +16,25 @@ local function shuffle(tbl)
     end
 end
 
--- Hàm chạy mpv với file được chọn
-local function play_current_song(playlist_type, file)
+-- Hàm chạy mpv với file hoặc danh sách file
+local function play_current_song(playlist_type, files, is_single_file)
     vim.fn.system("pkill -9 mpv")
     local cmd = { "mpv", "--no-video" }
-    if M.repeat_current then
+    if M.repeat_current and is_single_file then
         table.insert(cmd, "--loop-file=inf")
+    elseif not is_single_file then
+        table.insert(cmd, "--loop-playlist=no") -- Không lặp lại playlist trừ khi bật chế độ lặp
     end
-    table.insert(cmd, file)
+    if is_single_file then
+        table.insert(cmd, files)
+    else
+        vim.list_extend(cmd, files) -- Thêm toàn bộ danh sách file
+    end
     vim.fn.jobstart(cmd, { detach = true })
-    vim.notify("Đang phát: " .. vim.fn.fnamemodify(file, ":t"), vim.log.levels.INFO)
+    vim.notify("Đang phát: " .. (is_single_file and vim.fn.fnamemodify(files, ":t") or "Playlist " .. playlist_type), vim.log.levels.INFO)
 end
 
+-- Hàm bắt đầu playlist
 local function start_playlist(playlist_type)
     local path = nil
     if playlist_type == "coloi" then
@@ -50,12 +57,16 @@ local function start_playlist(playlist_type)
         return
     end
 
+    -- Xáo trộn danh sách nhạc
     shuffle(files)
     M.playlists[playlist_type] = { files = files, index = 1, dir = path }
     M.active_playlist = playlist_type
-    play_current_song(playlist_type, files[1])
+
+    -- Phát toàn bộ danh sách nhạc
+    play_current_song(playlist_type, files, false)
 end
 
+-- Hàm phát bài tiếp theo (dùng khi nhấn <leader>Mn)
 local function play_next_song()
     if not M.active_playlist then
         vim.notify("Không có playlist nào đang hoạt động", vim.log.levels.ERROR)
@@ -70,13 +81,14 @@ local function play_next_song()
 
     playlist.index = playlist.index + 1
     if playlist.index > #playlist.files then
-        vim.notify("Đã hết danh sách phát", vim.log.levels.INFO)
+        vim.notify("Đã phát hết danh sách nhạc", vim.log.levels.INFO)
+        M.active_playlist = nil
         return
     end
-    play_current_song(M.active_playlist, playlist.files[playlist.index])
+    play_current_song(M.active_playlist, playlist.files[playlist.index], true)
 end
 
--- ✅ Đã sửa để luôn hiện danh sách chọn, tên bài ngắn gọn
+-- Hàm tìm kiếm bài hát
 local function search_song()
     if not M.active_playlist then
         vim.notify("Không có playlist nào đang hoạt động để tìm kiếm", vim.log.levels.ERROR)
@@ -97,8 +109,18 @@ local function search_song()
 
     vim.ui.select(items, { prompt = "Chọn bài muốn phát:" }, function(choice, idx)
         if choice and idx then
+            -- Cập nhật chỉ số playlist
             playlist.index = idx
-            play_current_song(M.active_playlist, playlist.files[idx])
+            -- Tạo danh sách phát bắt đầu từ bài được chọn
+            local play_files = {}
+            for i = idx, #playlist.files do
+                table.insert(play_files, playlist.files[i])
+            end
+            for i = 1, idx - 1 do
+                table.insert(play_files, playlist.files[i])
+            end
+            -- Phát danh sách bắt đầu từ bài được chọn
+            play_current_song(M.active_playlist, play_files, false)
         end
     end)
 
@@ -125,8 +147,18 @@ local function search_song()
 
         vim.ui.select(items, { prompt = "Chọn bài muốn phát:" }, function(choice, idx)
             if choice and idx and results[idx] then
+                -- Cập nhật chỉ số playlist
                 playlist.index = results[idx].index
-                play_current_song(M.active_playlist, results[idx].file)
+                -- Tạo danh sách phát bắt đầu từ bài được chọn
+                local play_files = {}
+                for i = results[idx].index, #playlist.files do
+                    table.insert(play_files, playlist.files[i])
+                end
+                for i = 1, results[idx].index - 1 do
+                    table.insert(play_files, playlist.files[i])
+                end
+                -- Phát danh sách bắt đầu từ bài được chọn
+                play_current_song(M.active_playlist, play_files, false)
             end
         end)
     end)
@@ -139,7 +171,7 @@ local function play_file_by_path()
             vim.notify("Không tìm thấy file: " .. input, vim.log.levels.ERROR)
             return
         end
-        play_current_song("manual", input)
+        play_current_song("manual", input, true)
         M.active_playlist = nil
     end)
 end
@@ -167,7 +199,6 @@ local function kill_music()
     M.active_playlist = nil
 end
 
--- ✅ Không khởi động lại bài khi bật/tắt lặp lại
 local function toggle_repeat()
     M.repeat_current = not M.repeat_current
     vim.notify("Chế độ lặp lại: " .. (M.repeat_current and "BẬT" or "TẮT"), vim.log.levels.INFO)
@@ -222,4 +253,3 @@ end
 
 M.setup()
 return M
-

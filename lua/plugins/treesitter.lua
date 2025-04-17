@@ -21,7 +21,8 @@ return {
                 "markdown",
                 "markdown_inline",
                 "gitignore",
-                "python", -- Parser cho Python
+                "python",
+                "c_sharp"
             },
             highlight = {
                 enable = true,
